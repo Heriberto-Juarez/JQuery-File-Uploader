@@ -1,0 +1,1 @@
+# JQuery File Uploader Class
