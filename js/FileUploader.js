@@ -59,7 +59,6 @@ class FileUploader {
                 }
                 if (!settings.maxSize) {
                     settings.maxSize = 5242880; //5MB
-                    settings.maxSize = 5242880 * 30; //+100MB
                 }
             }
 
@@ -119,7 +118,7 @@ class FileUploader {
                 finalStr += ',';
         }
         //Next line commented to test the validation process
-        //that.input.attr("accept", finalStr);
+        that.input.attr("accept", finalStr);
 
     }
 
