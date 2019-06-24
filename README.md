@@ -1,5 +1,7 @@
 # JQuery File Uploader Class
 
+![FileUploaderGif](https://user-images.githubusercontent.com/20604217/59994725-866b3600-961a-11e9-96f7-13e6d307fc5d.gif)
+
 This class is a very easy to use and customize File uploader. 
 
 It currently supports 2 languages:
