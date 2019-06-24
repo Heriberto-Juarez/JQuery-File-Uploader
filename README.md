@@ -1,5 +1,4 @@
 # JQuery File Uploader Class
-# COMING SOON
 
 This class is a very easy to use and customize File uploader. 
 
