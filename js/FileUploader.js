@@ -30,8 +30,8 @@ class FileUploader {
         if (container.length) {
             that.input = container.find("input[type='file']");
             that.progressBar = container.find("progress");
-
-            if (settings.hasOwnProperty("url")) {
+            that.container = container;
+            if (!settings.hasOwnProperty("url")) {
                 if (that.input.data("url"))
                     settings.url = that.input.data("url");
             }
@@ -47,94 +47,184 @@ class FileUploader {
             if (!settings.method)
                 settings.method = 'POST';
 
-            if(!settings.validate) {
+            if (!settings.validate) {
                 settings.validate = true;
-                if(!settings.onValid) {
-                    settings.onValid = () =>{}
+                if (!settings.onValid) {
+                    settings.onValid = () => {
+                    }
                 }
-                if(!settings.onInvalid) {
-                    settings.onInvalid = () =>{}
+                if (!settings.onInvalid) {
+                    settings.onInvalid = () => {
+                    }
                 }
-                if(!settings.maxSize) {
+                if (!settings.maxSize) {
                     settings.maxSize = 5242880; //5MB
+                    settings.maxSize = 5242880 * 30; //+100MB
                 }
             }
+
+            if (settings.validate) {
+                that.messageContainer = $("<p style='display: none; color: red;' '></p>");
+                that.input.after(that.messageContainer);
+                that.isValid = true;
+            }
+
+
+            if (!that.fileInfo) {
+                that.fileInfo = {name: "unknown", type: "unknown", size: "unkwown"};
+            }
+
+            if (!settings.lan) {
+                settings.lan = "en";
+            }
+
             that.settings = settings;
-            /*
-            * Its important to keep the next conditional and its content after this.settings= settings because
-            * allowedFormats method needs to access allowed formats as a class variable.
-            * */
+
             if (!settings.allowedFormats && settings.validate) {
                 settings.allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
                 that.setInputFormats();
             }
 
+            if (!settings.messages) {
+                that.setMessages();
+            }
 
+            that.validateOnChange();
 
         } else {
             this.container = null;
         }
 
+    }
 
-        console.log(this);
-
+    setMessages() {
+        let that = this;
+        this.settings.messages = {
+            es: {
+                "invalidFileType": "El archivo \"" + that.fileInfo.name + "\" tiene formato invalido. Los formatos admitidos son: " + that.settings.allowedFormats.join(", "),
+                "maxSizeExceded": "El archivo  \"" + that.fileInfo.name + "\" sobrepasó el tamaño de archivos permitido de " + that.settings.maxSize + " bytes"
+            },
+            en: {
+                "invalidFileType": "The file \"" + that.fileInfo.name + "\" has an invalid type. Allowed file types are: " + that.settings.allowedFormats.join(", "),
+                "maxSizeExceded": "The file \"" + that.fileInfo.name + "\" excedes the maximum size of " + that.settings.maxSize + " bytes"
+            }
+        };
     }
 
     setInputFormats() {
         let that = this, finalStr = '';
         for (let i = 0; i < that.settings.allowedFormats.length; i++) {
-            finalStr += that.settings.allowedFormats[i];
+            finalStr += that.settings.allowedFormats[i].toLowerCase();
             if (i >= 0 && i < that.settings.allowedFormats.length - 1)
                 finalStr += ',';
         }
-        that.input.attr("accept", finalStr);
+        //Next line commented to test the validation process
+        //that.input.attr("accept", finalStr);
+
+    }
+
+    validateOnChange() {
+        let that = this;
+        if (this.input !== undefined && this.input.length > 0 && that.settings.validate) {
+            that.input.on("change", () => {
+
+                that.isValid = true; //reset every file change
+
+                if (that.messageContainerIsValid()) {
+                    that.messageContainer.stop(true, false).slideUp().html("");
+                }
+                if (window.FormData && window.Blob) {
+                    for (let i = 0; i < that.input[0].files.length; i++) {
+                        that.fileInfo.type = that.input[0].files[i].type;
+                        that.fileInfo.name = that.input[0].files[i].name;
+                        that.fileInfo.size = that.input[0].files[i].size;
+
+                        that.setMessages(); // reset the messages content, so type, name and size of the file that caused an error will be shown
+
+                        if (!that.settings.allowedFormats.includes(that.fileInfo.type)) {
+                            if (that.messageContainerIsValid) {
+                                that.messageContainer.html(that.settings.messages[that.settings.lan].invalidFileType).slideDown();
+                            }
+                            that.isValid = false;
+                            break;
+                        }
+
+                        if (that.fileInfo.size > that.settings.maxSize) {
+                            if (that.messageContainerIsValid) {
+                                that.messageContainer.html(that.settings.messages[that.settings.lan].maxSizeExceded).slideDown();
+                            }
+                            that.isValid = false;
+                            break;
+                        }
+                    }
+                } else {
+                    that.isValid = false;
+                }
+                if (that.isValid) {
+                    that.settings.onValid();
+                } else {
+                    that.settings.onInvalid();
+                }
+            });
+        }
+    }
+
+    messageContainerIsValid() {
+        return (this.messageContainer !== null && this.messageContainer.hasOwnProperty(0) && $(this.messageContainer[0]).is("p"));
     }
 
     uploadOnChange() {
         let that = this;
         if (this.input !== undefined && this.input.length > 0)
-            that.input.on("change", () => that.upload($(this)));
-    }
-
-    validateOnChange() {
-        this.input.on("change", function () {
-        });
+            that.input.on("change", () => that.upload());
     }
 
     upload() {
         let that = this;
-        if (this.request !== null && this.container !== null && that.input.files && that.input.files.length > 0) {
+        if (this.request !== null && this.container !== null && that.input[0].files) {
             let data = new FormData();
             let append = '';
-            for (let i = 0; i < that.input.files.length; i++) {
+            for (let i = 0; i < that.input[0].files.length; i++) {
                 if (that.input.attr("name") === '') {
                     that.input.attr("name", "file_");
                 }
                 if (that.input.attr("multiple"))
                     append = "[]";
-                else if (that.input.files.length !== 1)
+                else if (that.input[0].files.length !== 1)
                     append = i;
-                data.append((input.attr("name") + append), input.files[i]);
+                data.append((that.input.attr("name") + append), that.input[0].files[i]);
             }
-            that.request.addEventListener("load", () => {
-                that.progressBar.attr("value", 0);
-            });
-            if (that.request.hasOwnProperty("upload"))
-                that.request.addEventListener("progress", (e) => that.progressBar.attr("value", Math.round((e.loaded / e.total) * 100)));
-            else
+            that.request.addEventListener("load", () => that.settings.done());
+            if (that.request.upload) {
+                that.request.upload.addEventListener("progress", (e) => {
+                    that.progressBar.attr("value", Math.round((e.loaded / e.total) * 100));
+                    console.log(that.progressBar.attr("value"), Math.round((e.loaded / e.total) * 100));
+                });
+            } else {
                 that.progressBar.removeAttr("value"); //let it move automatically
+            }
             that.request.addEventListener("error", that.settings.error);
             that.request.addEventListener("abort", that.settings.abort);
             that.request.open(that.settings.method, that.settings.url);
-            that.request.onreadystatechange = (e) => {
-                if (that.request.readyState === 4) {
-                    if (that.request.status === 200)
-                        that.settings.done();
-                    else
-                        that.settings.error();
-                }
-            };
             that.request.send(data);
         }
     }
+}
+
+function request() {
+    let peticion = null;
+    try {
+        peticion = new XMLHttpRequest();
+    } catch (IntentarMs) {
+        try {
+            peticion = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (OtroMs) {
+            try {
+                peticion = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (fallo) {
+                peticion = null;
+            }
+        }
+    }
+    return peticion;
 }
