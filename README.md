@@ -1,6 +1,6 @@
 # JQuery File Uploader Class
 
-## Working functionality in development branch
+## Get all the Working functionality in the development branch
 
 This class is a very easy to use and customize File uploader. 
 
