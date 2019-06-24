@@ -1,7 +1,10 @@
 # JQuery File Uploader Class
-# COMING TODAY JUN/23/2019
+# COMING SOON
 
-This class is a very easy to use and customize File uploader
+This class is a very easy to use and customize File uploader. 
+Currently supports 2 languages:
+* English
+* Spanish
 
 ## Features:
 
