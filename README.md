@@ -22,3 +22,6 @@ It currently supports 2 languages:
  * Autoupload or do it whenever you indicate to the FileUploader throug upload Method
     
     
+# Working Version
+The current version of this branch has a working code but we still ned to write a manual and complete an example before merging the branch with master. 
+However you are free to use the code.   
