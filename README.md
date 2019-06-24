@@ -2,7 +2,8 @@
 # COMING SOON
 
 This class is a very easy to use and customize File uploader. 
-Currently supports 2 languages:
+
+It currently supports 2 languages:
 * English
 * Spanish
 
