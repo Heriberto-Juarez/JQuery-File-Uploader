@@ -1,5 +1,7 @@
 # JQuery File Uploader Class
 
+## Working functionality in development branch
+
 This class is a very easy to use and customize File uploader. 
 
 It currently supports 2 languages:
