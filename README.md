@@ -2,6 +2,11 @@
 
 ## Get all the Working functionality in the development branch
 
+**PREVIEW**
+
+![FileUploaderGif](https://user-images.githubusercontent.com/20604217/59996018-b583a680-961e-11e9-8758-b1808ccfbfd8.gif)
+
+
 This class is a very easy to use and customize File uploader. 
 
 It currently supports 2 languages:
