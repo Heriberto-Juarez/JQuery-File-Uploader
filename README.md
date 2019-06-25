@@ -32,7 +32,8 @@ You will need to call jQuery and the **FileUploader.js** file for the code to wo
 You will also need a way to upload files, for this project you can find 
 **upload.php** file in php folder. Its a simple script that uploads files.
 
-#Usage:
+
+## Usage:
 
 ## Basic HTML
 
