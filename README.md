@@ -1,70 +1,82 @@
-# JQuery File Uploader Class
+# JQuery File Uploader
 
-![FileUploaderGif](https://user-images.githubusercontent.com/20604217/59996018-b583a680-961e-11e9-8758-b1808ccfbfd8.gif)
+This is a javascript class that provides the ability to upload files through ajax and show the progress in an html progress bar
 
-This class is a very easy to use and customize File uploader. 
+![JqueryFileUploaderGif](https://user-images.githubusercontent.com/20604217/60099872-278ee500-971e-11e9-9dab-d8bcc430118a.gif)
 
-It currently supports 2 languages:
-* English
-* Spanish
 
 ## Features:
 
-**Note:** _Many of the features can be disabled/enabled and/or customized easily_
-
- * Progesssbar 
- * Allow certain file types only 
- * Limit file sizes
- * Add custom actions when the file is valid
- * Add custom actions when the file is invalid
- * You could simply upload a file with no validation if you want to
- * Display default messages or customize the messages for your needs
- * Upload as many files as you want
- * Limit the maximum amount of files to upload
- * Autoupload or do it whenever you indicate to the FileUploader throug upload Method
-    
-    
-# Working Version
-The current version of this branch has a working code but we still ned to write a manual and complete an example before merging the branch with master. 
-However you are free to use the code.   
+* Display the upload progress in a progress bar
+* Files custom/default validation
+* Automatic/Manual upload
+* Single/Multiple files upload
+* Optional files limit
+* Custom actions when a validation is succesful or not
+* Custom actions on a request error/success/abort
+* Enable/disable many of the features
 
 
-# Quick Manual
+## Installation
 
-**The following code was taken from the working example you can see in the gif.**
+You can install this package via 
 
-### HTML needed:
-A container with an identifier such as an ID or a class is important for the code to work.
-Inside the container we must have a progressbar and a input of type file
-```
-<div class="file-uploader">
-    <label for="img">Agregar imagen <i class="fas fa-cloud-upload-alt"></i></label>
+    npm i @herii/jquery-file-uploader  
+
+Or you can clone this repo here:
+
+https://github.com/Heriberto-Juarez/JQuery-File-Uploader.git
+
+You will need to call jQuery and the **FileUploader.js** file for the code to work.
+You will also need a way to upload files, for this project you can find 
+**upload.php** file in php folder. Its a simple script that uploads files.
+
+#Usage:
+
+## Basic HTML
+
+You will need a container *The container is essential* for the functionality. Inside the container
+there must be a input of type *file* and a progressbar.
+
+Example: 
+````
+<div id="container-test" class="custom-styles">
+    <label for="img">Select File</label>
+    <input type="file" name="img" id="img" data-url="php/upload.php" multiple>
     <progress value="0"></progress>
-    <input type="file" name="img" id="img" data-url="<?= base_url() ?>Admin/actualizar_imagen_prod/">
 </div>
-```
-### Javascript
-```
-let file_uploader = new FileUploader($(".file-uploader"), {
-    lan: "es", //language 
-    onValid: () => {
-        //Here goes code you want to excecute when the validation is successful
-        upload_btn.removeClass("disabled");
-    },
-    onInvalid: () => {
-        //Here goes code you want to excecute when the validation isn't successful
-        upload_btn.addClass("disabled");
-    }
-});
+````
 
-/**
-* Depending on your needs you can upload a file manually 
-*/
-file_uploader.upload();
+## Javascript
 
-/**
-* Or you can auto-upload the file as soon as it is selected by calling the next method after the object instantiation
-*/
-file_uploader.uploadOnChange();
+For the javascript class to work, we need to identify the previously
+created container, ours have the id **container-test**
 
-```
+An object must be created an as a first argument the container must be passed, a second an optional argument is an object with settings.
+````
+let container = $("#container-test");
+let my_file_uploader = new FileUploader(container, {autoSend: true});
+````
+
+
+## Settings
+| Property      | Default value | Description          | Optional Example |
+| ------------- |:-------------:  | -----:|---:|
+| error         | `empty function`  | A function executed in case of upload error             |         |
+| done          | `empty function`  | A function executed in case of successful upload        |         |
+| abort         | `empty function`  | A function executed in case of an aborted upload        |         |
+| method        | `POST`            | Ajax method used to send files                          |         |
+| validate      | `true`            | Indicates whether the files should be validated         |         |
+| autoSend      | `false`           | Indicates whether the files should be sent automatically|         |
+| onValid       | `empty function`  | A function executed in case of valid files selected     |         |
+| onInvalid     | `empty function`  | A function executed in case of invalid files selected   |         |
+| onInvalid     | `empty function`  | A function executed in case of invalid files selected   |         |
+| maxSize       | `5242880`         | The maximum size allowed for each file in bytes         |         |
+| maxFiles      | -1                | The maximum amount of files allowed, if the value is -1 then the script will allow unlimited files         |         |
+| data          | `Object`   | The maximum size allowed for each file in bytes         | `{key:value, key2: value}`        |
+
+
+## Tips:
+
+* Assign values to `onValid` and `onInvalid` callback functions to enable and disable a button such as in the example found at *index.html*
+* Check the example at *index.html* to understand the File uploader use.

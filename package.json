@@ -1,0 +1,27 @@
+{
+  "name": "@herii/jquery-file-uploader",
+  "version": "1.0.0",
+  "dependencies": {
+    "jquery": "^3.4.1"
+  },
+  "description": "![FileUploaderGif](https://user-images.githubusercontent.com/20604217/59996018-b583a680-961e-11e9-8758-b1808ccfbfd8.gif)",
+  "main": "js/FileUploader.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heriberto-Juarez/JQuery-File-Uploader.git"
+  },
+  "keywords": [
+    "Jquery",
+    "File",
+    "Uploader"
+  ],
+  "author": "Heriberto-Juarez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Heriberto-Juarez/JQuery-File-Uploader/issues"
+  },
+  "homepage": "https://github.com/Heriberto-Juarez/JQuery-File-Uploader#readme"
+}
