@@ -1,7 +1,12 @@
 {
   "name": "@herii/jquery-file-uploader",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "dependencies": {
+  },
+  "peerDependencies": {
+    "jquery": "^3.4.1"
+  },
+  "devDependencies": {
     "jquery": "^3.4.1"
   },
   "description": "![FileUploaderGif](https://user-images.githubusercontent.com/20604217/59996018-b583a680-961e-11e9-8758-b1808ccfbfd8.gif)",
