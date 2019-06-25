@@ -28,6 +28,7 @@ class FileUploader {
         this.request = request();
 
         if (container.length) {
+
             that.input = container.find("input[type='file']");
             that.progressBar = container.find("progress");
             that.container = container;
@@ -47,7 +48,7 @@ class FileUploader {
             if (!settings.method)
                 settings.method = 'POST';
 
-            if (!settings.validate) {
+            if (!settings.hasOwnProperty("validate")) {
                 settings.validate = true;
                 if (!settings.onValid) {
                     settings.onValid = () => {
@@ -59,11 +60,10 @@ class FileUploader {
                 }
                 if (!settings.maxSize) {
                     settings.maxSize = 5242880; //5MB
-                    settings.maxSize = 5242880 * 30; //+100MB
                 }
             }
 
-            if (settings.validate) {
+            if (settings.validate || settings.maxSize !== -1) {
                 that.messageContainer = $("<p style='display: none; color: red;' '></p>");
                 that.input.after(that.messageContainer);
                 that.isValid = true;
@@ -78,18 +78,39 @@ class FileUploader {
                 settings.lan = "en";
             }
 
+            if(!settings.data) {
+                settings.data = {};
+            }
+
             that.settings = settings;
 
-            if (!settings.allowedFormats && settings.validate) {
-                settings.allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            if (that.settings.validate && !that.settings.allowedFormats) {
+                that.settings.allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
                 that.setInputFormats();
             }
 
-            if (!settings.messages) {
+            if(!that.settings.maxFiles){
+                that.settings.maxFiles = -1; // -1 will be taken as no limit.
+            }else{
+                that.validateMaxFiles();
+            }
+
+            if (!that.settings.messages) {
                 that.setMessages();
             }
 
-            that.validateOnChange();
+            if (!that.settings.hasOwnProperty("autoSend")) {
+                that.settings.autoSend = false;
+            }
+
+            if (that.settings.autoSend) {
+                that.uploadOnChange();
+            }
+            if(that.settings.validate) {
+                that.validateOnChange();
+            }
+            that.allowUpload = true; //flag variable
+
 
         } else {
             this.container = null;
@@ -97,18 +118,51 @@ class FileUploader {
 
     }
 
+    validateMaxFiles() {
+        let that = this;
+        this.input.on("change", function () {
+            if (that.messageContainerIsValid && that.isValid) {
+                that.messageContainer.stop(true, false).slideUp().html("");
+            }
+            if(that.settings.maxFiles !== -1 && that.input[0].files.length > that.settings.maxFiles){
+                that.setMessages();
+                if (that.messageContainerIsValid) {
+                    that.messageContainer.html(that.settings.messages[that.settings.lan].maxFiles).slideDown();
+                }
+                that.settings.onInvalid();
+                that.allowUpload = false;
+            }else{
+                that.allowUpload = true;
+            }
+        });
+    }
+
     setMessages() {
         let that = this;
-        this.settings.messages = {
-            es: {
-                "invalidFileType": "El archivo \"" + that.fileInfo.name + "\" tiene formato invalido. Los formatos admitidos son: " + that.settings.allowedFormats.join(", "),
-                "maxSizeExceded": "El archivo  \"" + that.fileInfo.name + "\" sobrepasó el tamaño de archivos permitido de " + that.settings.maxSize + " bytes"
-            },
-            en: {
-                "invalidFileType": "The file \"" + that.fileInfo.name + "\" has an invalid type. Allowed file types are: " + that.settings.allowedFormats.join(", "),
-                "maxSizeExceded": "The file \"" + that.fileInfo.name + "\" excedes the maximum size of " + that.settings.maxSize + " bytes"
-            }
-        };
+
+        if(!that.settings.messages) {
+            that.settings.messages = {};
+        }
+
+        if(!that.settings.messages.es){
+            that.settings.messages.es ={};
+        }
+        if(!that.settings.messages.en){
+            that.settings.messages.en ={};
+        }
+        if(that.settings.validate){
+            that.settings.messages.es.invalidFileType = "El archivo \"" + that.fileInfo.name + "\" tiene formato invalido. Los formatos admitidos son: " + that.settings.allowedFormats.join(", ");
+            that.settings.messages.es.maxSizeExceded = "El archivo  \"" + that.fileInfo.name + "\" sobrepasó el tamaño de archivos permitido de " + that.settings.maxSize + " bytes";
+
+            that.settings.messages.en.invalidFileType = "The file \"" + that.fileInfo.name + "\" has an invalid type. Allowed file types are: " + that.settings.allowedFormats.join(", ");
+            that.settings.messages.en.maxSizeExceded = "The file \"" + that.fileInfo.name + "\" excedes the maximum size of " + that.settings.maxSize + " bytes";
+        }
+
+        if(that.settings.maxFiles !== -1){
+            that.settings.messages.es.maxFiles = "Seleccione un maximo de " + that.settings.maxFiles + " archivos.";
+            that.settings.messages.en.maxFiles = "Select a maximum of " + that.settings.maxFiles + " files";
+        }
+
     }
 
     setInputFormats() {
@@ -118,19 +172,18 @@ class FileUploader {
             if (i >= 0 && i < that.settings.allowedFormats.length - 1)
                 finalStr += ',';
         }
-        //Next line commented to test the validation process
-        //that.input.attr("accept", finalStr);
-
+        that.input.attr("accept", finalStr);
     }
 
     validateOnChange() {
         let that = this;
-        if (this.input !== undefined && this.input.length > 0 && that.settings.validate) {
+        if (this.input !== undefined && this.input.length > 0) {
             that.input.on("change", () => {
-
                 that.isValid = true; //reset every file change
-
-                if (that.messageContainerIsValid()) {
+                /* If allowUpload is false we don't need to hide the message
+                 * Actually, if its false, the maximum files allowed was exceeded, hence an error message was displayed.
+                 */
+                if (that.messageContainerIsValid() && that.allowUpload) {
                     that.messageContainer.stop(true, false).slideUp().html("");
                 }
                 if (window.FormData && window.Blob) {
@@ -138,9 +191,7 @@ class FileUploader {
                         that.fileInfo.type = that.input[0].files[i].type;
                         that.fileInfo.name = that.input[0].files[i].name;
                         that.fileInfo.size = that.input[0].files[i].size;
-
                         that.setMessages(); // reset the messages content, so type, name and size of the file that caused an error will be shown
-
                         if (!that.settings.allowedFormats.includes(that.fileInfo.type)) {
                             if (that.messageContainerIsValid) {
                                 that.messageContainer.html(that.settings.messages[that.settings.lan].invalidFileType).slideDown();
@@ -160,7 +211,10 @@ class FileUploader {
                 } else {
                     that.isValid = false;
                 }
-                if (that.isValid) {
+                if (that.isValid && that.allowUpload) {
+                    if(that.settings.autoSend) {
+                        that.upload();
+                    }
                     that.settings.onValid();
                 } else {
                     that.settings.onInvalid();
@@ -175,13 +229,22 @@ class FileUploader {
 
     uploadOnChange() {
         let that = this;
-        if (this.input !== undefined && this.input.length > 0)
-            that.input.on("change", () => that.upload());
+        if (this.input !== undefined && this.input.length > 0){
+            if(!that.settings.validate){
+                that.input.on("change", function () {
+                    that.upload();
+                });
+            }
+        }
+    }
+
+    setData(data){
+        this.settings.data =data;
     }
 
     upload() {
         let that = this;
-        if (this.request !== null && this.container !== null && that.input[0].files) {
+        if (that.allowUpload && this.request !== null && this.container !== null && that.input[0].files && that.input[0].files.length>0) {
             let data = new FormData();
             let append = '';
             for (let i = 0; i < that.input[0].files.length; i++) {
@@ -194,14 +257,24 @@ class FileUploader {
                     append = i;
                 data.append((that.input.attr("name") + append), that.input[0].files[i]);
             }
+            //Append the data found in settings if available
+            if ((typeof that.settings.data) === 'object') {
+                $.each(that.settings.data, function (k, v) {
+                    data.append(k, v);
+                });
+            }
             that.request.addEventListener("load", () => that.settings.done());
             if (that.request.upload) {
                 that.request.upload.addEventListener("progress", (e) => {
                     that.progressBar.attr("value", Math.round((e.loaded / e.total) * 100));
-                    console.log(that.progressBar.attr("value"), Math.round((e.loaded / e.total) * 100));
                 });
             } else {
-                that.progressBar.removeAttr("value"); //let it move automatically
+                /*
+                * If request.upload is not available, progress event isn't too.
+                * So we remove progress bar's value because in some browsers when the value is not present
+                * the progressbar moves from star to end, hence giving the effect of loading.
+                **/
+                that.progressBar.removeAttr("value");
             }
             that.request.addEventListener("error", that.settings.error);
             that.request.addEventListener("abort", that.settings.abort);
@@ -211,20 +284,24 @@ class FileUploader {
     }
 }
 
+/*
+* @return mixed req
+* Returns the request available for different browsers, if no request is available 'null' is returned
+* */
 function request() {
-    let peticion = null;
+    let req = null;
     try {
-        peticion = new XMLHttpRequest();
-    } catch (IntentarMs) {
+        req = new XMLHttpRequest();
+    } catch (tryMS) {
         try {
-            peticion = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (OtroMs) {
+            req = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (otherMs) {
             try {
-                peticion = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (fallo) {
-                peticion = null;
+                req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (failed) {
+                req = null;
             }
         }
     }
-    return peticion;
+    return req;
 }

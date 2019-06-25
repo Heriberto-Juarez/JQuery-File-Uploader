@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jquery File Uploader by Heriberto-Juarez</title>
+    <style>
+        body{
+            margin: 0;
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+            background-color: #fff;
+        }
+        *, ::after, ::before {
+            box-sizing: border-box;
+        }
+        body{
+            font-family: -apple-system, sans-serif;
+            width: 80%;
+            margin: 0 auto;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .custom-styles input[type="file"]{
+            display: none;
+        }
+        .custom-styles label {
+            border: 1px solid blue;
+            padding: 0.2rem;
+            width: 100% !important;
+            display: block;
+            text-align: center;
+        }
+        .custom-styles label:hover{
+            background: #1ea9ff;
+            color: #fff;
+        }
+        .d-block{
+            display: block;
+        }
+        form > div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        input[type="submit"] {
+            width: 100%;
+            background: #333;
+            color: #fff;
+            padding: 0.2rem;
+            outline: none;
+            border: none;
+            /*display: none;*/
+        }
+        input[type="submit"]:hover,.custom-styles label:hover {
+            cursor: pointer;
+        }
+        progress{
+            min-width: 600px;
+            width: 100%;
+        }
+        input[disabled] {
+            background: #8f989b;
+            color: #c6d8d1;
+        }
+        input[disabled]:hover {
+            cursor: not-allowed;
+        }
+        input[type="submit"] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1 class="text-center">Jquery File Uploader</h1>
+</div>
+
+<div class="center">
+    <form action="index.html" method="post" id="form">
+        <div>
+            <div id="container-test" class="custom-styles">
+                <label for="img">Select File</label>
+                <input type="file" name="img" id="img" data-url="php/upload.php" multiple>
+                <progress value="0"></progress>
+            </div>
+        </div>
+        <div>
+            <input type="submit" id="upload" value="Send" disabled="disabled">
+        </div>
+    </form>
+</div>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="js/FileUploader.js"></script>
+<script>
+    $(document).ready(function () {
+
+        const send_btn = $("#upload");
+        const form = $("#form");
+        form.on("submit", (e) =>e.preventDefault()); //do not send form
+
+        let container = $("#container-test");
+        let my_file_uploader = new FileUploader(container, {
+            autoSend: true,
+            maxFiles: 3,
+            onValid: () => {
+                send_btn.removeAttr("disabled");
+            },
+            onInvalid: () => {
+                send_btn.attr("disabled", "disabled");
+            }
+        });
+
+        send_btn.on("click", () => {
+            if(!send_btn.attr("disabled")){
+                my_file_uploader.upload();
+            }
+        });
+
+    });
+</script>
+</body>
+</html>
