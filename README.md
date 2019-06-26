@@ -1,7 +1,5 @@
 # JQuery File Uploader
 
-**IMPORTANT:** To test our example you need to create the *upload* folder. Its not in the repo because it was added to .gitignore
-
 This is a javascript class that provides the ability to upload files through ajax and show the progress in an html progress bar
 
 ![JqueryFileUploaderGif](https://user-images.githubusercontent.com/20604217/60099872-278ee500-971e-11e9-9dab-d8bcc430118a.gif)
