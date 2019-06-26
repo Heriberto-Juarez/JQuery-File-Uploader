@@ -103,29 +103,14 @@
 <script src="js/FileUploader.js"></script>
 <script>
     $(document).ready(function () {
-
         const send_btn = $("#upload");
-        const form = $("#form");
-        form.on("submit", (e) =>e.preventDefault()); //do not send form
-
+        $("#form").on("submit", (e) =>e.preventDefault()); //do not send form
         let container = $("#container-test");
         let my_file_uploader = new FileUploader(container, {
-            autoSend: true,
-            maxFiles: 3,
-            onValid: () => {
-                send_btn.removeAttr("disabled");
-            },
-            onInvalid: () => {
-                send_btn.attr("disabled", "disabled");
-            }
+            onValid: () => {send_btn.removeAttr("disabled");},
+            onInvalid: () => {send_btn.attr("disabled", "disabled");}
         });
-
-        send_btn.on("click", () => {
-            if(!send_btn.attr("disabled")){
-                my_file_uploader.upload();
-            }
-        });
-
+        send_btn.on("click", () => {if(!send_btn.attr("disabled")){my_file_uploader.upload();}});
     });
 </script>
 </body>

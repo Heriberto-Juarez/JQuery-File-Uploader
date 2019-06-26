@@ -80,6 +80,20 @@ let my_file_uploader = new FileUploader(container, {autoSend: true});
 | data          | `Object`   | The maximum size allowed for each file in bytes         | `{key:value, key2: value}`        |
 
 
+## Manipulate formats
+Different projects require different file types, so you may want 
+to allow different sets of file formats or types.
+
+The next methods will allow you to manipulate the formats you allow.
+
+The file types or formats are the file MIME Types:
+For example: *image/png*
+
+* `.addFormat(f);` Add the format *f*
+* `.removeFormat(f);` Remove the format *f*
+* `setAllFormats(array_of_formats);` Set the allowed formats to the ones contained inside the array
+
+
 ## Tips:
 
 * Assign values to `onValid` and `onInvalid` callback functions to enable and disable a button such as in the example found at *index.html*

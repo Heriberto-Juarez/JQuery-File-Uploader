@@ -1,25 +1,25 @@
 /**
-* MIT License
-* Copyright (c) 2019 Heriberto Juárez Jaimes
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-* */
+ * MIT License
+ * Copyright (c) 2019 Heriberto Juárez Jaimes
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * */
 class FileUploader {
     constructor(container, settings) {
         let that = this;
@@ -78,7 +78,7 @@ class FileUploader {
                 settings.lan = "en";
             }
 
-            if(!settings.data) {
+            if (!settings.data) {
                 settings.data = {};
             }
 
@@ -86,12 +86,15 @@ class FileUploader {
 
             if (that.settings.validate && !that.settings.allowedFormats) {
                 that.settings.allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            }
+
+            if (that.settings.allowedFormats.length) {
                 that.setInputFormats();
             }
 
-            if(!that.settings.maxFiles){
+            if (!that.settings.maxFiles) {
                 that.settings.maxFiles = -1; // -1 will be taken as no limit.
-            }else{
+            } else {
                 that.validateMaxFiles();
             }
 
@@ -106,7 +109,7 @@ class FileUploader {
             if (that.settings.autoSend) {
                 that.uploadOnChange();
             }
-            if(that.settings.validate) {
+            if (that.settings.validate) {
                 that.validateOnChange();
             }
             that.allowUpload = true; //flag variable
@@ -124,14 +127,14 @@ class FileUploader {
             if (that.messageContainerIsValid && that.isValid) {
                 that.messageContainer.stop(true, false).slideUp().html("");
             }
-            if(that.settings.maxFiles !== -1 && that.input[0].files.length > that.settings.maxFiles){
+            if (that.settings.maxFiles !== -1 && that.input[0].files.length > that.settings.maxFiles) {
                 that.setMessages();
                 if (that.messageContainerIsValid) {
                     that.messageContainer.html(that.settings.messages[that.settings.lan].maxFiles).slideDown();
                 }
                 that.settings.onInvalid();
                 that.allowUpload = false;
-            }else{
+            } else {
                 that.allowUpload = true;
             }
         });
@@ -140,17 +143,17 @@ class FileUploader {
     setMessages() {
         let that = this;
 
-        if(!that.settings.messages) {
+        if (!that.settings.messages) {
             that.settings.messages = {};
         }
 
-        if(!that.settings.messages.es){
-            that.settings.messages.es ={};
+        if (!that.settings.messages.es) {
+            that.settings.messages.es = {};
         }
-        if(!that.settings.messages.en){
-            that.settings.messages.en ={};
+        if (!that.settings.messages.en) {
+            that.settings.messages.en = {};
         }
-        if(that.settings.validate){
+        if (that.settings.validate) {
             that.settings.messages.es.invalidFileType = "El archivo \"" + that.fileInfo.name + "\" tiene formato invalido. Los formatos admitidos son: " + that.settings.allowedFormats.join(", ");
             that.settings.messages.es.maxSizeExceded = "El archivo  \"" + that.fileInfo.name + "\" sobrepasó el tamaño de archivos permitido de " + that.settings.maxSize + " bytes";
 
@@ -158,7 +161,7 @@ class FileUploader {
             that.settings.messages.en.maxSizeExceded = "The file \"" + that.fileInfo.name + "\" excedes the maximum size of " + that.settings.maxSize + " bytes";
         }
 
-        if(that.settings.maxFiles !== -1){
+        if (that.settings.maxFiles !== -1) {
             that.settings.messages.es.maxFiles = "Seleccione un maximo de " + that.settings.maxFiles + " archivos.";
             that.settings.messages.en.maxFiles = "Select a maximum of " + that.settings.maxFiles + " files";
         }
@@ -167,12 +170,14 @@ class FileUploader {
 
     setInputFormats() {
         let that = this, finalStr = '';
-        for (let i = 0; i < that.settings.allowedFormats.length; i++) {
-            finalStr += that.settings.allowedFormats[i].toLowerCase();
-            if (i >= 0 && i < that.settings.allowedFormats.length - 1)
-                finalStr += ',';
+        if (that.settings.validate) {
+            for (let i = 0; i < that.settings.allowedFormats.length; i++) {
+                finalStr += that.settings.allowedFormats[i].toLowerCase();
+                if (i >= 0 && i < that.settings.allowedFormats.length - 1)
+                    finalStr += ',';
+            }
+            that.input.attr("accept", finalStr);
         }
-        that.input.attr("accept", finalStr);
     }
 
     validateOnChange() {
@@ -191,6 +196,7 @@ class FileUploader {
                         that.fileInfo.type = that.input[0].files[i].type;
                         that.fileInfo.name = that.input[0].files[i].name;
                         that.fileInfo.size = that.input[0].files[i].size;
+
                         that.setMessages(); // reset the messages content, so type, name and size of the file that caused an error will be shown
                         if (!that.settings.allowedFormats.includes(that.fileInfo.type)) {
                             if (that.messageContainerIsValid) {
@@ -212,7 +218,7 @@ class FileUploader {
                     that.isValid = false;
                 }
                 if (that.isValid && that.allowUpload) {
-                    if(that.settings.autoSend) {
+                    if (that.settings.autoSend) {
                         that.upload();
                     }
                     that.settings.onValid();
@@ -229,8 +235,8 @@ class FileUploader {
 
     uploadOnChange() {
         let that = this;
-        if (this.input !== undefined && this.input.length > 0){
-            if(!that.settings.validate){
+        if (this.input !== undefined && this.input.length > 0) {
+            if (!that.settings.validate) {
                 that.input.on("change", function () {
                     that.upload();
                 });
@@ -238,13 +244,13 @@ class FileUploader {
         }
     }
 
-    setData(data){
-        this.settings.data =data;
+    setData(data) {
+        this.settings.data = data;
     }
 
     upload() {
         let that = this;
-        if (that.allowUpload && this.request !== null && this.container !== null && that.input[0].files && that.input[0].files.length>0) {
+        if (that.allowUpload && this.request !== null && this.container !== null && that.input[0].files && that.input[0].files.length > 0) {
             let data = new FormData();
             let append = '';
             for (let i = 0; i < that.input[0].files.length; i++) {
@@ -282,6 +288,53 @@ class FileUploader {
             that.request.send(data);
         }
     }
+
+    checkFormat() {
+        let that = this;
+        if (!that.settings.allowedFormats.length) {
+            that.settings.allowedFormats = [];
+        }
+    }
+
+    /**
+     * @return boolean True if format was found, otherwise false
+     * */
+    formatExists(format) {
+        let that = this;
+        this.checkFormat();
+        return (this.settings.allowedFormats.filter((f) => {
+            return f === format;
+        })).length > 0;
+    }
+
+    addFormat(format) {
+        let that = this;
+        if (that.settings.validate && !that.formatExists(format)) {
+            that.checkFormat();
+            this.settings.allowedFormats.push(format);
+            this.setInputFormats();
+        }
+    }
+
+    removeFormat(format) {
+        let that = this;
+        if (that.settings.validate) {
+            that.checkFormat();
+            that.settings.allowedFormats = that.settings.allowedFormats.filter((f) => {
+                return f !== format;
+            });
+            this.setInputFormats();
+        }
+    }
+
+    setAllFormats(array){
+        let that = this;
+        if (that.settings.validate) {
+            that.settings.allowedFormats = [];
+            this.setInputFormats();
+        }
+    }
+
 }
 
 /*
